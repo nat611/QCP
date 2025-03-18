@@ -1,6 +1,8 @@
 #imports and libraries
 import numpy as np
 import math
+import time
+import matplotlib.pyplot as plt
 
 class QuantumGates:
     """Class initialising all different quantum gates"""
@@ -184,8 +186,10 @@ def grovers_algorithm(num_qubits=2, target_state='01'):
     print(f"\nRunning Grover's Algorithm on {num_qubits} qubits, searching for |{target_state}⟩")
     circuit = QuantumCircuit(num_qubits) #initalising instance of QuantumCircuit class
 
+    start_time = time.time()  # Start overall timer
+
     #Calculate optimal number of iterations
-    iterations = math.floor(math.pi / 4 * math.sqrt(2 ** num_qubits))
+    iterations = math.floor((math.pi / 4) * math.sqrt(2 ** num_qubits))
     print(f"Optimal number of iterations: {iterations}")
 
     #Putting the quantum register in an equal superposition
@@ -201,8 +205,10 @@ def grovers_algorithm(num_qubits=2, target_state='01'):
         if prob > 0.001:  #Not showing probabilities once they become too small
             print(f"|{format(i, f'0{num_qubits}b')}⟩: {prob:.4f}") #Printing all probabilities
 
+    total_iteration_time = 0 #Initialising iteration time
     #Alternating between oracle and diffusion steps for optimal number of iterations
     for iteration in range(iterations):
+        iteration_start_time = time.time()  # Start iteration timer
         print(f"\nIteration {iteration + 1}:")
 
         #Applying oracle to mark the target state
@@ -254,6 +260,11 @@ def grovers_algorithm(num_qubits=2, target_state='01'):
             if prob > 0.001:  #Not showing probabilities once they become too small
                 print(f"|{format(i, f'0{num_qubits}b')}⟩: {prob:.4f}") #Printing probabilities
 
+        iteration_time = time.time() - iteration_start_time  # End iteration timer
+        total_iteration_time += iteration_time
+
+        avg_iteration_time = total_iteration_time / iterations if iterations > 0 else 0
+
     #Measure the final result
     result, probabilities = circuit.measure()
     print("State Probabilities:")
@@ -261,8 +272,30 @@ def grovers_algorithm(num_qubits=2, target_state='01'):
         if prob > 0.001:  #Not showing probabilities once they become too small
             print(f"|{format(i, f'0{num_qubits}b')}⟩: {prob:.4f}") #Printing final probability
 
-    print(f"Final Number of Iterations Used: {iteration + 1}")
+    total_time = time.time() - start_time  # End overall timer
+    print(f"Total execution time: {total_time:.6f} seconds")
+    print(f"Average iteration execution time: {avg_iteration_time:.6f} seconds")
     print(f"\nFinal Measurement Result: |{result}⟩") #Printing final result
+
+    # Plotting bar chart of probabilites
+    states = []  # Initialize list to store states
+
+    # Loop through all the possible values
+    for i in range(2 ** num_qubits):
+        # Converting to binary string
+        binary_string = format(i, f'0{num_qubits}b')
+
+        # Creating state labels
+        state = f"|{binary_string}⟩"
+        states.append(state)
+
+    plt.bar(states, probabilities, color='pink', alpha=0.7)  # Plotting bar chart
+    plt.xlabel('States')
+    plt.ylabel('Probability')
+    plt.ylim(0,1)
+    plt.title(f'Top States and Their Probabilities for {num_qubits}-Qubit Grover Search')
+    plt.show()
+
     return result, probabilities
 
 #Adding input prompts for desired number of qubits and target state
