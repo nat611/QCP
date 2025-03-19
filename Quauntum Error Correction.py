@@ -256,7 +256,7 @@ class QuantumErrorCorrection:
         """Decode the 3-qubit error correction code back to a single logical qubit """
         # Apply CNOTs to decode the state (reverse of encoding)
         self.qubits.cnot(2, 4).cnot(3, 4)  # Decode the state back to qubit 0 (qubit 4 in little endian)
-        self.print_state_description("State after encoding")
+        self.print_state_description("State after decoding")
         self.print_final_state("Final state")
 
 # Initialize with a superposition state
